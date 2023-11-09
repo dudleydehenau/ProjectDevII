@@ -14,7 +14,7 @@ class ParkingManagementSystem:
             4: {"available": 2, "reserved": 0}
         }
 
-    def generate_ticket(self, floor, is_handicap=False):
+    def generate_ticket(self, floor, is_handicap=False) -> int:
         if self.parking_spaces[floor]["available"] > 0:
             ticket_number = self.ticket_counter
             self.ticket_counter += 1
