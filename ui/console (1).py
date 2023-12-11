@@ -1,5 +1,6 @@
 from classes import ParkingManagementSystem
 from time import sleep
+from classes.Profits import ProfitsCalculator
 import os
 
 def console_interface():
@@ -10,12 +11,14 @@ def console_interface():
     project_dir = os.path.dirname(script_dir)
     data_file = os.path.join(project_dir, 'datacsv', 'parking_bxl.csv')
     parking_system = ParkingManagementSystem(data_file)
+    profits_calculator = ProfitsCalculator()
     while True:
         print("\nMenu:")
         print("1. Générer un ticket")
         print("2. Gérer les exceptions")
         print("3. Afficher les places disponibles")
         print("4. Libérer une place")
+        print("5. Afficher les bénéfices de la journée")
         print("99. Quitter")
         choice = input("Choisissez une option: ")
 
@@ -43,7 +46,10 @@ def console_interface():
                 print(f"La place numero {placeNumber} a été libérée avec succès.")
             else :
                 print(f"Il semblerais qu'il y ai une erreur. Veuillez vérifier si vous avez bien entrez le bon numéro de tickets")
-            
+        elif choice == "5":
+            profits = parking_system.calculate_daily_profits()
+            print(f"\nLes bénéfices de la journée sont de : {profits} €.")
+        
         elif choice == "99":
             sleep(2.5)
             break
