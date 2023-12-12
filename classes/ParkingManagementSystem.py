@@ -1,53 +1,78 @@
+import csv
+
 class ParkingManagementSystem:
-    def __init__(self):
-        self.ticket_counter = 1
-        self.parking_spaces = {
-            1: {"available": 50, "reserved": 0},
-            2: {"available": 50, "reserved": 0},
-            3: {"available": 50, "reserved": 0},
-            4: {"available": 50, "reserved": 0}
-        }
-        self.handicap_spaces = {
-            1: {"available": 2, "reserved": 0},
-            2: {"available": 2, "reserved": 0},
-            3: {"available": 2, "reserved": 0},
-            4: {"available": 2, "reserved": 0}
-        }
+    def __init__(self, fileImport):
+        self.data_file = fileImport
+        self.load_data()
 
-    def generate_ticket(self, floor, is_handicap=False) -> int:
-        if self.parking_spaces[floor]["available"] > 0:
-            ticket_number = self.ticket_counter
-            self.ticket_counter += 1
-            self.parking_spaces[floor]["available"] -= 1
-            self.parking_spaces[floor]["reserved"] += 1
+    def load_data(self):
+        self.parking_spots = []
+        with open(self.data_file, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                spot = {
+                    "Floor": int(row['Floor']),
+                    "SpotNumber": int(row['SpotNumber']),
+                    "Available": int(row['Available']),
+                    "Reserved": int(row['Reserved']),
+                    "Handicap": int(row['Handicap']),
+                    "VehicleType": row['VehicleType']
+                }
+                self.parking_spots.append(spot)
 
-            if is_handicap:
-                self.handicap_spaces[floor]["reserved"] += 1
-                self.handicap_spaces[floor]["available"] -= 1
-
-            return ticket_number
-        else:
-            return None
+    def save_data(self):
+        """
+        Doc
+        """
+        with open(self.data_file, 'w', newline='') as file:
+            fieldnames = ['Floor', 'SpotNumber', 'Available', 'Reserved', 'Handicap', 'VehicleType']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for spot in self.parking_spots:
+                writer.writerow(spot)
+    
+    def place_libre(self, Floor):
+        for spot in self.parking_spots:
+            if spot["Floor"] == int(Floor):
+                if spot["Available"] == 1:
+                    return spot["SpotNumber"]
+        
+    def generate_ticket(self, floor, spotNumber, is_handicap=False, vehicle_type=None):
+        for spot in self.parking_spots:
+            if spot["Floor"] == floor and spot["SpotNumber"] == spotNumber and spot["Available"] == 1:
+                spot["Available"] = 0
+                spot["Reserved"] = 1
+                spot["VehicleType"] = vehicle_type
+                self.save_data()
+                return spotNumber
+        return None 
 
     def handle_exception(self, floor, exception_type):
-        if exception_type == "free":
-            # Suite a faire
-            pass
-        elif exception_type == "other":
-            # Suite a faire
-            pass
-    
-    def liberer_place(self, floor, is_handicap=False):
-        if is_handicap:
-            self.handicap_spaces[floor]["reserved"] -= 1
-            self.handicap_spaces[floor]["available"] += 1
-        else:
-            self.parking_spaces[floor]["available"] += 1
-            self.parking_spaces[floor]["reserved"] -= 1
+        # Traitement des exceptions
+        pass
+
+    def liberer_place(self, placeNumber):
+        for spot in self.parking_spots:
+            if spot["SpotNumber"] == placeNumber and spot["Reserved"] == 1:
+                spot["Available"] = "1"
+                spot["Reserved"] = "0"
+                spot["Handicap"] = "0"
+                spot["VehicleType"] = ""
+                self.save_data()  # Sauvegarde les données mises à jour dans le fichier CSV
+                return True 
+
 
     def show_stat_place(self):
         print("\nStatut des places dans chaque étage:")
-        for floor, spaces in self.parking_spaces.items():
-            reserved_spaces = spaces["reserved"] 
-            available_spaces = spaces["available"]
-            print(f"Étage {floor}: {reserved_spaces} places réservées, {available_spaces} places libres")
+        for floor in set(spot["Floor"] for spot in self.parking_spots):
+            reserved_spots = sum(spot["Reserved"] for spot in self.parking_spots if spot["Floor"] == floor)
+            available_spots = sum(spot["Available"] for spot in self.parking_spots if spot["Floor"] == floor)
+            print(f"Étage {floor}: {reserved_spots} places réservées, {available_spots} places libres")
+
+    def calculate_daily_profits(self):
+        price = 3.0
+        day_profits = 0
+        for spot in self.parking_spots:
+            if spot['Available'] == 0:
+                day_profits += price
+        return day_profits

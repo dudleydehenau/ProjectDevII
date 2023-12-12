@@ -1,4 +1,4 @@
-from ui.consoleV2 import console_interfaceV2
+from ui.console import console_interface
 
 if __name__ == "__main__":
-    console_interfaceV2()
+    console_interface()

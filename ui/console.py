@@ -1,4 +1,5 @@
-from classes import ParkingManagementSystem, sleep
+from classes.ParkingManagementSystem import ParkingManagementSystem
+from time import sleep
 from classes.Profits import ProfitsCalculator
 import os
 
@@ -6,7 +7,10 @@ def console_interface():
     """
     DOC
     """
-    parking_system = ParkingManagementSystem()
+    script_dir = os.path.dirname(__file__)
+    project_dir = os.path.dirname(script_dir)
+    data_file = os.path.join(project_dir, 'datacsv', 'parking_bxl.csv')
+    parking_system = ParkingManagementSystem(data_file)
     profits_calculator = ProfitsCalculator()
     while True:
         print("\nMenu:")
@@ -20,12 +24,24 @@ def console_interface():
 
         if choice == "1":
             floor = int(input("Entrez l'étage (1-4) : "))
+            placeNumber_input = input("Entrez, si vous le souhaitez, un numéro de place. (vide = aléatoire) :")
+            if placeNumber_input.strip():
+                placeNumber = int(placeNumber_input)
+            else:
+                for spot in parking_system.parking_spots:
+                    if spot["Floor"] == floor and spot["Available"] == 1:
+                        placeNumber = spot["SpotNumber"]
+                        break
+                else:
+                    print(f"Aucune place disponible à l'étage {floor}.")
+                    placeNumber = None
             is_handicap = input("La place est-elle réservée aux personnes handicapées? (Oui/Non): ").lower() == "oui"
-            ticket_number = parking_system.generate_ticket(floor, is_handicap)
+            vehicule_type = input("Entrez le type de véhicule garé. (vide pour ignorer) :") 
+            ticket_number = parking_system.generate_ticket(floor, placeNumber, is_handicap, vehicule_type)
             if ticket_number:
                 print(f"Ticket généré avec succès. Numéro de ticket : {ticket_number}")
             else:
-                print("Désolé, toutes les places sont occupées.")
+                print("Erreur, veuillez réessayer")
         elif choice == "2":
             floor = int(input("Entrez l'étage (1-4) : "))
             exception_type = input("Type d'exception (gratuite/autre): ").lower()
@@ -34,13 +50,16 @@ def console_interface():
         elif choice == "3":
             parking_system.show_stat_place()
         elif choice == "4":
-            floor = int(input("Entrez l'étage (1-4) : "))
-            is_handicap = input("La place était-elle réservée aux personnes handicapées? (Oui/Non): ").lower() == "oui"
-            parking_system.liberer_place(floor, is_handicap)
-            print(f"La place de l'étage {floor} a été libérée avec succès.")
+            placeNumber = int(input("Entrez le numéro de la place : "))
+            #parking_system.liberer_place(placeNumber)
+            if (parking_system.liberer_place(placeNumber)) :
+                print(f"La place numero {placeNumber} a été libérée avec succès.")
+            else :
+                print(f"Il semblerais qu'il y ai une erreur. Veuillez vérifier si vous avez bien entrez le bon numéro de tickets")
         elif choice == "5":
-            profits = profits_calculator.calculate_daily_profits()
+            profits = parking_system.calculate_daily_profits()
             print(f"\nLes bénéfices de la journée sont de : {profits} €.")
+        
         elif choice == "99":
             sleep(2.5)
             break

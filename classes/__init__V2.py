@@ -1,2 +1,0 @@
-from classes.ParkingManagementSystem import ParkingManagementSystemV2
-
