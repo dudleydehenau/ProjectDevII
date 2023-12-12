@@ -1,6 +1,5 @@
 from classes.ParkingManagementSystem import ParkingManagementSystem
 from time import sleep
-from classes.Profits import ProfitsCalculator
 import os
 
 def console_interface():
@@ -11,7 +10,6 @@ def console_interface():
     project_dir = os.path.dirname(script_dir)
     data_file = os.path.join(project_dir, 'datacsv', 'parking_bxl.csv')
     parking_system = ParkingManagementSystem(data_file)
-    profits_calculator = ProfitsCalculator()
     while True:
         print("\nMenu:")
         print("1. Générer un ticket")
