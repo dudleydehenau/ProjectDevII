@@ -1,6 +1,6 @@
 import csv
 
-class ParkingManagementSystem:
+class ParkingManagementSystemV2:
     def __init__(self, fileImport):
         self.data_file = fileImport
         self.load_data()
@@ -37,16 +37,15 @@ class ParkingManagementSystem:
                 if spot["Available"] == 1:
                     return spot["SpotNumber"]
         
-    def generate_ticket(self, Floor, spotNumber, is_handicap=False, vehicle_type=None) -> int:
+    def generate_ticket(self, floor, spotNumber, is_handicap=False, vehicle_type=None):
         for spot in self.parking_spots:
-            if spot["Floor"] == int(Floor):
-                if spot["SpotNumber"] == spotNumber and spot["Available"] == 1 and is_handicap:
-                    spot["Available"] = 0
-                    spot["Reserved"] = 1
-                    spot["VehicleType"] = vehicle_type
-                    self.save_data()
-                    return print(f"Le tickets pour la place {spotNumber} a été généré avec succès")
-        return None
+            if spot["Floor"] == floor and spot["SpotNumber"] == spotNumber and spot["Available"] == 1:
+                spot["Available"] = 0
+                spot["Reserved"] = 1
+                spot["VehicleType"] = vehicle_type
+                self.save_data()
+                return spotNumber
+        return None 
 
     def handle_exception(self, floor, exception_type):
         # Traitement des exceptions

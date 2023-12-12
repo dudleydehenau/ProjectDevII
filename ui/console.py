@@ -6,9 +6,6 @@ def console_interface():
     """
     DOC
     """
-    script_dir = os.path.dirname(__file__)
-    project_dir = os.path.dirname(script_dir)
-    data_file = os.path.join(project_dir, 'datacsv', 'parking_bxl.csv')
     parking_system = ParkingManagementSystem()
     profits_calculator = ProfitsCalculator()
     while True:
