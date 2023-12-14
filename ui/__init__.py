@@ -1,1 +1,1 @@
-from ui.console import console_interface
+# __init__ du dossier ui
